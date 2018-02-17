@@ -28,7 +28,7 @@ def detect_lang(col):
 train_test=pd.read_json('../input/toxic/train_test.json')
 train_test = train_test.rename(columns={'0':0})
 train_test = train_test.reset_index(drop=True)
-train_test= train_test[:100]
+# train_test= train_test[:100]
 train_test['lang'] =train_test[0].apply(detect_lang)
 send_to_telegram('язык готов')
 train_test.to_csv('../output/train_test_lang.csv')
