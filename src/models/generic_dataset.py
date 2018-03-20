@@ -3,10 +3,15 @@ import pandas as pd
 
 
 class GenericDataset:
-    def __init__(self, config):
+    def __init__(self, config, use_json=True):
         logging.getLogger().info('Dataset: Generation started.')
         self.config = config
-        self.data = self.prepare_data()
+        if use_json is True:
+            self.data = self.prepare_data()
+        else:
+            train = pd.read_csv(self.config.TRAIN_DATA_FILE)
+            test = pd.read_csv(self.config.TEST_DATA_FILE)
+            self.data = train, test
 
     def prepare_data(self):
         train = pd.read_csv(self.config.TRAIN_DATA_FILE)

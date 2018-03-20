@@ -13,3 +13,7 @@ class Dataset(GenericDataset):
     def __init__(self, config):
         super().__init__()
         train, test = self.data
+        self.X_train, self.X_test, self.y_train = self.preprocessing(train, test)
+
+    def preprocessing(self, train, test):
+        

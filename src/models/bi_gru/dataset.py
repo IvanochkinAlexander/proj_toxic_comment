@@ -8,8 +8,8 @@ import numpy as np
 
 
 class Dataset(GenericDataset):
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self, config, **kwargs):
+        super().__init__(config, **kwargs)
         train, test = self.data
         train_test, tokenizer = self.generate_sequences(train, test)
         self.X_train, self.X_test, self.y_train = train_test

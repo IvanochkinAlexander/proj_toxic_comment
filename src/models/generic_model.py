@@ -11,10 +11,6 @@ from utils import metrics
 from utils.send_to_telegram import send_to_telegram
 
 
-# def send_to_telegram(msg):
-    # pass
-
-
 class GenericModel:
     MODEL_NAME = 'generic_model'
 
@@ -26,7 +22,7 @@ class GenericModel:
 
     @property
     def experiment_id(self):
-        return f"{self.config.MODEL_PREFIX}_{self.MODEL_NAME}_{self.timestamp}"
+        return f"{self.config.MODEL_PREFIX}__{self.MODEL_NAME}_{self.timestamp}"
 
     def display_info(self):
         """Display model info collected from the config file."""
@@ -67,11 +63,10 @@ class GenericModel:
         oof = np.zeros_like(y, dtype=np.float)
         oof_loglosses, oof_aucs = [], []
 
-        cv_start_msg = "*** CV STARTED ***\n\nMODEL:{}\nCONFIG:{}".format(
+        cv_start_msg = "*** CV STARTED ***\n\nMODEL:{}\n{}".format(
             self.experiment_id, self.config.display_info()
         )
         send_to_telegram(cv_start_msg)
-
         for i, (tr_ix, te_ix) in enumerate(kfold.split(X)):
             X_train, X_val = X[tr_ix], X[te_ix]
             y_train, y_val = y[tr_ix], y[te_ix]
@@ -91,7 +86,7 @@ class GenericModel:
             oof_kfold, oof_logloss, oof_auc = self.evaluate(X_val, y_val, model)
 
             fold_end_msg = 'MODEL: {}\nCV FOLD {} / {}\nLOGLOSS: {:.5f}, AUC: {:.5f}'.format(
-                self.experiment_id, i, self.config.CV_NSPLITS, oof_logloss, oof_auc
+                self.experiment_id, i + 1, self.config.CV_NSPLITS, oof_logloss, oof_auc
             )
 
             logging.getLogger().info(fold_end_msg)
@@ -137,7 +132,7 @@ class GenericModel:
         self._generate_predictions_file(predict_df)
 
     def _generate_predictions_file(self, predict_df):
-        predict_filename = f'{self.experiment_id}_predict.csv'
+        predict_filename = f'{self.experiment_id}__predict.csv'
         predict_file_path = os.path.join(self.config.CV_OUTPUT_DIR, f'inference/{predict_filename}')
         predict_df.to_csv(predict_file_path, index=False)
         logging.getLogger().info(f'MODEL: {self.experiment_id}\nINFERENCE SAVED: {predict_file_path}.')
@@ -152,8 +147,8 @@ class GenericModel:
         logging.getLogger().info(cv_status_msg)
         send_to_telegram(cv_status_msg)
 
-        summary_filename = f'{self.experiment_id}_summary.txt'
-        oof_filename = f'{self.experiment_id}.csv'
+        summary_filename = f'{self.experiment_id}__summary.txt'
+        oof_filename = f'{self.experiment_id}__oof_auc_{int(average_auc * 10000)}.csv'
         summary_file_path = os.path.join(self.config.CV_OUTPUT_DIR, summary_filename)
         oof_filename = os.path.join(self.config.CV_OUTPUT_DIR, oof_filename)
 
@@ -161,9 +156,18 @@ class GenericModel:
         summary_result_metric = "Average logloss: {:.5f}, average OOF ROC AUC: {:.5f}".format(average_logloss, average_auc)
         summary = '{}\n\n{}'.format(summary_result_metric, summary_model_info)
 
-        oof_file = pd.read_csv(self.config.TRAIN_DATA_FILE)
-        oof_file[self.config.LIST_CLASSES] = oof
-        oof_file.to_csv(oof_filename, index=False)
+        if self.config.AUGMENTATION is True:
+            oof_file = self.dataset.data[0]
+            oof_file.iloc[:, 1:7] = oof
+            oof_file = oof_file.drop_duplicates(subset='id')
+            oof_file[['id', 'comment_text', 'toxic',
+                        'severe_toxic', 'obscene', 'threat',
+                        'insult', 'identity_hate']].to_csv(
+                            oof_filename, index=False)
+        else:
+            oof_file = pd.read_csv(self.config.TRAIN_DATA_FILE)
+            oof_file[self.config.LIST_CLASSES] = oof
+            oof_file.to_csv(oof_filename, index=False)
 
         with open(summary_file_path, 'w') as f:
             f.write(summary)
