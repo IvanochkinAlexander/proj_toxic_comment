@@ -25,8 +25,7 @@ def basic_cleaning2(string):
 
     """Cleaning text from numbers and punctuation"""
 
-    string = string.lower()
-    string = re.sub('[0-9\(\)\^\%\$\'\"\.;,-\{\}\[\]\\/]', ' ', string)
+    string = re.sub('[0-9\(\)\!\^\%\$\'\"\.;,!?-\?\{\}\[\]\\/]', ' ', string)
     string = re.sub(' +', ' ', string)
     return string
 
@@ -132,7 +131,7 @@ for i in ltr:
     arr = str(i).split()
     xx = ""
     for j in arr:
-        j = str(j).lower()
+        j = str(j)
         if j[:4] == 'http' or j[:3] == 'www' or len(j)>50:
             continue
         if j in keys:
@@ -144,7 +143,7 @@ for i in lte:
     arr = str(i).split()
     xx = ""
     for j in arr:
-        j = str(j).lower()
+        j = str(j)
         if j[:4] == 'http' or j[:3] == 'www' or len(j)>50:
             continue
         if j in keys:
@@ -159,21 +158,11 @@ trate = train["new_comment_text"].tolist()
 tete = test["new_comment_text"].tolist()
 
 for i, c in enumerate(trate):
-    trate[i] = re.sub('[0-9\(\)\^\%\$\'\"\.;,-\{\}\[\]\\/]', ' ', str(trate[i]).lower())
+    trate[i] = re.sub('somethinggg', ' ', str(trate[i]))
 for i, c in enumerate(tete):
-    tete[i] = re.sub('[0-9\(\)\^\%\$\'\"\.;,-\{\}\[\]\\/]', ' ', tete[i])
+    tete[i] = re.sub('somethinggg', ' ', tete[i])
 train["comment_text_cleaned"] = trate
 test["comment_text_cleaned"] = tete
-
-
-# def basic_cleaning2(string):
-#
-#     """Cleaning text from numbers and punctuation"""
-#
-#     string = string.lower()
-#     string = re.sub('[0-9\(\)\!\^\%\$\'\"\.;,-\?\{\}\[\]\\/]', ' ', string)
-#     string = re.sub(' +', ' ', string)
-#     return string
 
 print (train.columns)
 print (test.columns)
@@ -187,7 +176,7 @@ train_test = pd.concat([train, test]).reset_index(drop=True)
 print (train_test.columns)
 print (train_test.shape)
 train_test['comment_text_cleaned'] = train_test['comment_text_cleaned'].apply(lambda x : basic_cleaning2(x))
-train_test.to_json('../../data/interim/train_test_cleaned.json')
+train_test.to_json('../../data/interim/simple_train_test_cleaned_v2.json')
 # print (test.columns)
 # print('only alphabets')
 # send_to_telegram('replaced')
