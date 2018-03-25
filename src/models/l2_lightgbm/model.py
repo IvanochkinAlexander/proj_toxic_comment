@@ -20,6 +20,7 @@ class L2CatboostModel(GenericModel):
 
     def fit(self, X_train=None, X_val=None, y_train=None, y_val=None):
         models = []
+<<<<<<< HEAD
         classes_weights = [1.3, 2.0, 1., 2.8, 1., 2.1]
         for class_ix, class_name in enumerate(self.config.LIST_CLASSES):
             if X_val is not None:
@@ -39,6 +40,24 @@ class L2CatboostModel(GenericModel):
 
                 model.fit(X_train, y_train_i, eval_set=(X_val, y_val_i))
                 models.append(model)
+=======
+        classes_weights = [1, 1.5, 1, 2.5, 1, 1.5]
+
+        for class_ix, class_name in enumerate(self.config.LIST_CLASSES):
+            y_train_i = y_train[:, class_ix]
+
+            model = CatBoostClassifier(max_depth=2,
+                                       colsample_bylevel=0.8,
+                                       loss_function='Logloss',
+                                       eval_metric='AUC',
+                                       n_estimators=250,
+                                       learning_rate=0.01,
+                                       class_weights=[1, classes_weights[class_ix]],
+                                       reg_lambda=0.028)
+
+            model.fit(X_train, y_train_i)
+            models.append(model)
+>>>>>>> 9649f7d1207a8c837579dae055ce327ba2fae1f6
         return models
 
     def predict(self, X, models, **kwargs):
