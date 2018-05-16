@@ -26,9 +26,8 @@ def send_to_telegram(text):
 
     """Send appropriate links to telegram channel"""
 
-    bot = telegram.Bot(token='379005601:AAH1rv3ESXLWTXbn14gnCxW52eeKc4qnw50')
-    # chat_id = -1001111732295
-    chat_id = 169719023
+    bot = telegram.Bot(token='')
+    chat_id = ''
     bot.send_message(chat_id=chat_id, text=text)
     time.sleep(15)
 
