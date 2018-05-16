@@ -8,9 +8,9 @@ def send_to_telegram(text):
 
     """Send appropriate links to telegram channel"""
 
-    bot = telegram.Bot(token='523412387:AAHhEckKtZiCoSG6Pd3ZGtp4-JbL06I8H2E')
+    bot = telegram.Bot(token='')
     # chat_id = -1001371737931
-    chat_id = 169719023
+    chat_id = ''
     bot.send_message(chat_id=chat_id, text=text)
     time.sleep(5)
 
